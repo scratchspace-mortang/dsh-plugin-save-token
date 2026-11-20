@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "hook-ptc-noop-and-exempt-tools-pinned",
+      "name": "Save-token hook: strict-PTC no-op, exemptTools, native compression control",
+      "proves": "The tools/post-execute hook returns the tool result by identity under DSH_TOOLS_MODE=ptc and for names listed in exemptTools, and still compresses the same payload in native mode for a non-exempt tool, so the two no-op cases are not vacuous.",
+      "command": "cd /home/wilder/git-repos/dsh-plugin-save-token && env -u DSH_TOOLS_MODE npm test",
+      "addedAt": "2026-11-21T06:45:00.000Z",
+      "updatedAt": "2026-11-21T06:45:00.000Z"
+    }
+  ]
+}
