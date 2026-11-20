@@ -142,6 +142,7 @@ dsh plugin --profile web add /absolute/path/to/dsh-plugin-save-token
 | `noticeFullTrailerCount` | 3 | 前 N 次压缩使用完整取回通知，其后使用紧凑 trailer（id 与 locator 保留） |
 | `dedupeTtlMs` | 600000 | 跨轮去重的有效窗口（指纹字节级全等，长窗口信息安全） |
 | `dedupeTtlOverrides` | {} | 分工具 TTL（毫秒）；`0` 表示该工具永不去重（新鲜度敏感命令） |
+| `exemptTools` | [] | 原生模式下保持完整输出的工具名：既不压缩也不去重（`hindsight_recall` 是第一个条目）。严格 PTC 下插件整体不生效，因此该列表在 PTC 中不被读取 |
 | `compactAssistEnabled` | false | compaction 联动总开关——**默认关闭**（见下方缓存说明） |
 | `compactBudgetTokens / compactCooldownMs` | 120000/600000 | compaction 联动的绝对水位兜底与冷却 |
 | `contextWindowTokens / compactWatermarkRatio` | 0/0.85 | 已知模型窗口时，水位 = `窗口 × 比例`，替代绝对预算 |
@@ -166,6 +167,10 @@ v2.4.0 收尾项：
 - 纯文本窗口的错误行保护升级为 **±1 上下文行**（25 个锚点、相邻合并）：裸 assertion 行很难自解释，旁边的测试名/栈头才是省掉重跑的关键。
 - `save_token_expand` 可跨淘汰与重启：id→locator 侧索引独立于文本缓存存活，未命中时返回落盘 locator（宿主提供 `spillStore.readText` 时透明尝试直读），不再给死胡同。
 - 面板新增顶层/嵌套工具调用计数——嵌套豁免目前跳过子 agent 内部调用的压缩，这个计数让"未开发的收益面"第一次有了数字，再决定是否动豁免。
+
+v2.5.0 行为（严格 PTC）：
+
+- 当 `DSH_TOOLS_MODE=ptc` 时，`tools/post-execute` 钩子原样返回每个工具结果，包括顶层 `run_code` 结果：PTC 程序自己决定输出，嵌套调用记账会产生歧义。`exemptTools` 是原生模式设置。`test/hook.test.mjs` 同时钉住这两个 no-op 与原生模式的对照用例。
 
 ---
 

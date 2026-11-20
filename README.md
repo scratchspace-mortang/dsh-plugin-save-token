@@ -146,6 +146,7 @@ Once installed there is nothing to operate: open **Settings → Token Saver** fo
 | `noticeFullTrailerCount` | 3 | First N adopted compressions carry the verbose retrieval notice; later ones use the compact trailer (same id + locator) |
 | `dedupeTtlMs` | 600000 | Validity window for cross-turn dedup (fingerprints are byte-exact, so a longer window is information-safe) |
 | `dedupeTtlOverrides` | {} | Per-tool TTL in ms; `0` disables dedupe for that tool (freshness-sensitive commands) |
+| `exemptTools` | [] | Tool names whose results stay full in native mode: never compressed, never deduped (`hindsight_recall` is the first entry). Under strict PTC the plugin is inert, so the list is not consulted there |
 | `compactAssistEnabled` | false | Compaction coupling master switch — **off by default** (see cache note below) |
 | `compactBudgetTokens / compactCooldownMs` | 120000/600000 | Absolute fallback watermark and cooldown for the compaction assist |
 | `contextWindowTokens / compactWatermarkRatio` | 0/0.85 | When the model window is known, the watermark is `window × ratio` instead of the absolute budget |
@@ -170,6 +171,10 @@ v2.4.0 closing items:
 - Error-line protection in plain-text windows widened to **±1 context line** (25 anchors, adjacent anchors merged): a bare assertion line rarely explains itself; the neighboring test name / stack header is what saves a re-run.
 - `save_token_expand` survives eviction and restarts: an id→locator side index outlives the text cache, so a miss returns the spill locator (with a transparent `spillStore.readText` attempt when the host offers one) instead of a dead end.
 - Top-level vs nested tool calls are counted on the panel — the nesting exemption currently skips compression for subagent-internal calls, and this counter finally quantifies that unexploited surface before anyone flips it.
+
+v2.5.0 behavior (strict PTC):
+
+- Under `DSH_TOOLS_MODE=ptc` the `tools/post-execute` hook returns every tool result unchanged, including the top-level `run_code` result: a PTC program curates its own output, and the nested-call accounting would be ambiguous. `exemptTools` is a native-mode setting. `test/hook.test.mjs` pins both no-ops and the native-mode control.
 
 ---
 
