@@ -95,6 +95,7 @@ export function apply(ctx, config) {
     noticeFullTrailerCount: 3,
     dedupeTtlMs: 600000,
     dedupeTtlOverrides: {},
+    exemptTools: [],
     compactAssistEnabled: false,
     compactBudgetTokens: 120000,
     compactCooldownMs: 600000,
@@ -245,6 +246,14 @@ export function apply(ctx, config) {
     var decision = await next()
     if (!decision || decision.kind !== 'accept') return decision
     if (Object.prototype.hasOwnProperty.call(decision, 'value')) return decision
+    // Owner decision (grill board g93pssm0dwgdhc6t, DD2/DD10): under strict PTC
+    // the plugin does nothing. PTC programs curate their own output and the
+    // nested-call accounting is not worth the ambiguity, so the top-level
+    // run_code result is left byte-for-byte as the program returned it.
+    if (process.env.DSH_TOOLS_MODE === 'ptc') return decision
+    // Owner decision (DD1): configured tool names whose results stay full in
+    // native mode (hindsight_recall is the first entry).
+    if (Array.isArray(cfg.exemptTools) && cfg.exemptTools.indexOf(exec.name) !== -1) return decision
     // surface metrics (E4): how much of the call volume is nested inside
     // another tool / a subagent? The nesting exemption skips compression for
     // those calls — this counter quantifies that unexploited surface before
