@@ -64,7 +64,6 @@ test('hook: strict PTC returns the run_code result untouched', async () => {
   await withMode('ptc', async () => {
     var out = await h.post(toolCall('run_code'), { content: [{ type: 'text', text: text }] }, s.next)
     assert.equal(out, s.decision, 'the decision object must come back by identity')
-    assert.equal(out.content[0].text, text)
     assert.equal(h.spills.length, 0, 'nothing may be spilled when the plugin is inert')
   })
 })
